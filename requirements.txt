@@ -1,0 +1,6 @@
+zstandard==0.23.0
+torch==2.7.0
+numpy==2.2.6
+python-chess==1.999
+scikit-learn==1.6.1
+tqdm==4.67.1
