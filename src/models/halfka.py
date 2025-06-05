@@ -111,7 +111,6 @@ class HalfKAModel(nn.Module):
 
 
     def _forward_inference(self, own_indices: torch.Tensor, opp_indices: torch.Tensor):
-        print("forward inference")
         new_own_set = set(own_indices.tolist())
         new_opp_set = set(opp_indices.tolist())
 
@@ -132,7 +131,6 @@ class HalfKAModel(nn.Module):
 
             opp_added = list(new_opp_set - old_opp_set)
             opp_removed = list(old_opp_set - new_opp_set)
-            breakpoint()
 
 
             if own_added:
@@ -163,7 +161,7 @@ class HalfKAModel(nn.Module):
         x_1024 = torch.cat([own_512, opp_512], dim=1)
 
         piece_count = own_indices.size(0) + 1
-        bucket_index = ((piece_count - 1) // 4).clamp(0, 7)
+        bucket_index = (piece_count - 1) // 4
 
         out = self.layer_stacks[bucket_index](x_1024) + avg_score
         return out.squeeze()
