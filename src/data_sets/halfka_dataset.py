@@ -13,12 +13,7 @@ def sparse_dual_collate_fn(batch):
 
 class HalfKADataset(Dataset):
     def __init__(self, data: List[Dict]):
-        """
-        Args:
-            data: List of dicts with keys ["fen", "eval"]
-        """
 
-        # self.data = data
         self.data = []
         for item in data:
             fen = item["fen"]
@@ -39,30 +34,12 @@ class HalfKADataset(Dataset):
 
             self.data.append((own_indices, opp_indices, eval_cp))
 
+
     def __len__(self) -> int:
         return len(self.data)
 
+
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        # fen = self.data[idx]["fen"]
-        # eval_cp = self.data[idx]["eval"]
-        # board = chess.Board(fen)
-        # own_color = board.turn
-        # opp_color = not own_color
-
-        # own_indices = (
-        #     self.compute_white_halfka_indices(board) if own_color == chess.WHITE
-        #     else self.compute_black_halfka_indices(board)
-        # )
-        # opp_indices = (
-        #     self.compute_white_halfka_indices(board) if opp_color == chess.WHITE
-        #     else self.compute_black_halfka_indices(board)
-        # )
-
-        # return (
-        #     torch.tensor(own_indices, dtype=torch.long),
-        #     torch.tensor(opp_indices, dtype=torch.long),
-        #     torch.tensor(eval_cp, dtype=torch.float32)
-        # )
 
         own, opp, score = self.data[idx]
         return (

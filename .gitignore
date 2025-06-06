@@ -1,5 +1,7 @@
 data/
 
+processed_data/
+
 experiments/
 
 src/data_preprocessor/target/

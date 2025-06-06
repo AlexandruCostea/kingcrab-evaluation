@@ -1,9 +1,7 @@
-import zstandard as zstd
-import json
 import argparse
-import io
 import os
 import logging
+import json
 from tqdm import tqdm
 
 import torch
@@ -13,47 +11,19 @@ from sklearn.model_selection import train_test_split
 
 from data_sets import HalfKADataset, sparse_dual_collate_fn
 from models import HalfKAModel
+from utils import get_first_n_entries
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Chess Evaluator Model Training')
     parser.add_argument("--input_zst", help="Path to .zst file")
     parser.add_argument("--count", type=int, default=100_000, help="Number of entries to extract, -1 for all")
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--experiment_name', type=str, default='evaluator network')
     parser.add_argument('--checkpoint', type=str, default=None)
     return parser.parse_args()
-
-
-def extract_first_n_json_entries(zst_path: str, n: int = 100_000):
-    dctx = zstd.ZstdDecompressor()
-    count = 0
-    results = []
-    if n == -1:
-        n = float('inf')
-        
-    with open(zst_path, 'rb') as f:
-        with dctx.stream_reader(f) as reader:
-            text_stream = io.TextIOWrapper(reader, encoding='utf-8')
-            for line in text_stream:
-                try:
-                    line = line.strip()
-                    if not line:
-                        continue
-                    entry = json.loads(line)
-                    if "fen" in entry and "eval" in entry and isinstance(entry["eval"], (int, float)):
-                        results.append({
-                            "fen": entry["fen"],
-                            "eval": int(entry["eval"])
-                        })
-                        count += 1
-                    if count >= n:
-                        break
-                except Exception:
-                    continue
-    return results
 
 
 class Trainer:
@@ -88,7 +58,7 @@ class Trainer:
         if args.checkpoint:
             self.model.load_state_dict(torch.load(args.checkpoint))
         
-        data = extract_first_n_json_entries(args.input_zst, args.count)
+        data = get_first_n_entries(args.input_zst, args.count)
         train_data, val_data = train_test_split(data, test_size=0.2, random_state=42)
 
         train_ds = HalfKADataset(train_data)
