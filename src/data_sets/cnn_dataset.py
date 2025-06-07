@@ -9,7 +9,12 @@ from utils import board_to_cnn_input
 
 class CNNDataset(Dataset):
     def __init__(self, data: List[Dict]):
-        self.data = data
+        self.data = []
+        for entry in data:
+            if entry["eval"] > 600 or entry["eval"] < -600:
+                continue
+            self.data.append(entry)
+
 
 
     def __len__(self) -> int:

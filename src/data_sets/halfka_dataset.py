@@ -16,23 +16,10 @@ class HalfKADataset(Dataset):
 
         self.data = []
         for item in data:
-            fen = item["fen"]
-            eval_cp = max(min(item["eval"], 1000), -1000) / 1000.0
-
-            board = chess.Board(fen)
-            own_color = board.turn
-            opp_color = not own_color
-
-            own_indices = (
-                compute_white_halfka_indices(board) if own_color == chess.WHITE
-                else compute_black_halfka_indices(board)
-            )
-            opp_indices = (
-                compute_white_halfka_indices(board) if opp_color == chess.WHITE
-                else compute_black_halfka_indices(board)
-            )
-
-            self.data.append((own_indices, opp_indices, eval_cp))
+            if item["eval"] > 600 or item["eval"] < -600:
+                continue
+            
+            self.data.append(item)
 
 
     def __len__(self) -> int:
@@ -41,9 +28,24 @@ class HalfKADataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
-        own, opp, score = self.data[idx]
+        fen = self.data[idx]["fen"]
+        eval_cp = max(min(self.data[idx]["eval"], 1000), -1000) / 1000.0
+
+        board = chess.Board(fen)
+        own_color = board.turn
+        opp_color = not own_color
+
+        own_indices = (
+            compute_white_halfka_indices(board) if own_color == chess.WHITE
+            else compute_black_halfka_indices(board)
+        )
+        opp_indices = (
+            compute_white_halfka_indices(board) if opp_color == chess.WHITE
+            else compute_black_halfka_indices(board)
+        )
+
         return (
-            torch.tensor(own, dtype=torch.long),
-            torch.tensor(opp, dtype=torch.long),
-            torch.tensor(score, dtype=torch.float32)
+            torch.tensor(own_indices, dtype=torch.long),
+            torch.tensor(opp_indices, dtype=torch.long),
+            torch.tensor(eval_cp, dtype=torch.float32)
         )

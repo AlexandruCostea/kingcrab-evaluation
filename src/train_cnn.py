@@ -19,7 +19,7 @@ def parse_args():
     parser.add_argument("--input_zst", help="Path to .zst file")
     parser.add_argument("--count", type=int, default=100_000, help="Number of entries to extract, -1 for all")
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--experiment_name', type=str, default='evaluator network')
     parser.add_argument('--checkpoint', type=str, default=None)
@@ -65,7 +65,7 @@ class Trainer:
         val_ds = CNNDataset(val_data)
 
         self.train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True)
-        self.val_loader = DataLoader(val_ds, batch_size=1)
+        self.val_loader = DataLoader(val_ds, batch_size=args.batch_size)
 
         self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=args.lr)
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.5, patience=3)
@@ -82,8 +82,9 @@ class Trainer:
         mse = F.mse_loss(preds, targets).item()
         mae = F.l1_loss(preds, targets).item()
         sign_acc = ((preds * targets) > 0).float().mean().item()
-        within_100 = ((preds - targets).abs() < 1.0).float().mean().item()
-        return mse, mae, sign_acc, within_100
+        within_100 = ((preds - targets).abs() < 0.1).float().mean().item()
+        within_125 = ((preds - targets).abs() < 0.125).float().mean().item()
+        return mse, mae, sign_acc, within_100, within_125
 
 
     def train(self):
@@ -98,7 +99,8 @@ class Trainer:
                 targets = targets.to(self.device)
                 preds = self.model(cnn_input).squeeze(-1)
 
-                loss = F.mse_loss(preds, targets)
+                # loss = F.mse_loss(preds, targets)
+                loss = F.huber_loss(preds, targets)
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -109,9 +111,9 @@ class Trainer:
                 all_targets.append(targets)
             all_preds = torch.cat(all_preds)
             all_targets = torch.cat(all_targets)
-            mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
+            mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
 
-            message = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+            message = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
             self.logger.info(message)
             print(message)
 
@@ -136,12 +138,13 @@ class Trainer:
 
         all_preds = torch.cat(all_preds)
         all_targets = torch.cat(all_targets)
-        mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
+        mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
 
-        message = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+        message = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
         self.logger.info(message)
         print(message)
-        return mse
+        huber_loss = F.huber_loss(all_preds, all_targets)
+        return huber_loss
 
 
 

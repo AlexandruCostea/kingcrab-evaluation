@@ -94,8 +94,9 @@ class Trainer:
         mse = F.mse_loss(preds, targets).item()
         mae = F.l1_loss(preds, targets).item()
         sign_acc = ((preds * targets) > 0).float().mean().item()
-        within_100 = ((preds - targets).abs() < 1.0).float().mean().item()
-        return mse, mae, sign_acc, within_100
+        within_100 = ((preds - targets).abs() < 0.1).float().mean().item()
+        within_125 = ((preds - targets).abs() < 0.125).float().mean().item()
+        return mse, mae, sign_acc, within_100, within_125
 
 
     def train(self):
@@ -125,9 +126,9 @@ class Trainer:
 
             all_preds = torch.cat(all_preds)
             all_targets = torch.cat(all_targets)
-            mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
+            mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
 
-            message = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+            message = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
             self.logger.info(message)
             print(message)
 
@@ -154,9 +155,9 @@ class Trainer:
 
         all_preds = torch.cat(all_preds)
         all_targets = torch.cat(all_targets)
-        mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
+        mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
 
-        message = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+        message = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
         self.logger.info(message)
         print(message)
         return mse

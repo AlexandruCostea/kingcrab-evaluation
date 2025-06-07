@@ -9,3 +9,5 @@ src/data_preprocessor/target/
 __pycache__/
 
 Cargo.lock
+
+*.onnx

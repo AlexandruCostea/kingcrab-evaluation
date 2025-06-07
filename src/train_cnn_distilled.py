@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument("--input_zst", help="Path to .zst file")
     parser.add_argument("--count", type=int, default=100_000)
     parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--experiment_name', type=str, default='distilled_student')
     parser.add_argument('--checkpoint', type=str, default=None)
@@ -71,8 +71,9 @@ class Trainer:
         mse = F.mse_loss(preds, targets).item()
         mae = F.l1_loss(preds, targets).item()
         sign_acc = ((preds * targets) > 0).float().mean().item()
-        within_100 = ((preds - targets).abs() < 1.0).float().mean().item()
-        return mse, mae, sign_acc, within_100
+        within_100 = ((preds - targets).abs() < 0.1).float().mean().item()
+        within_125 = ((preds - targets).abs() < 0.125).float().mean().item()
+        return mse, mae, sign_acc, within_100, within_125
 
     def train(self):
         for epoch in range(self.epochs):
@@ -96,8 +97,8 @@ class Trainer:
 
             all_preds = torch.cat(all_preds)
             all_targets = torch.cat(all_targets)
-            mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
-            msg = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+            mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
+            msg = f"Train Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
             self.logger.info(msg)
             print(msg)
 
@@ -109,17 +110,16 @@ class Trainer:
         self.student.eval()
         all_preds, all_targets = [], []
         with torch.no_grad():
-            for cnn_input, _ in tqdm(self.val_loader, desc=f'Eval Epoch {epoch+1}'):
+            for cnn_input, label in tqdm(self.val_loader, desc=f'Eval Epoch {epoch+1}'):
                 cnn_input = cnn_input.to(self.device)
-                teacher_output = self.teacher(cnn_input).squeeze(-1)
                 student_output = self.student(cnn_input).squeeze(-1)
                 all_preds.append(student_output)
-                all_targets.append(teacher_output)
+                all_targets.append(label)
 
         all_preds = torch.cat(all_preds)
         all_targets = torch.cat(all_targets)
-        mse, mae, sign_acc, within_100 = self.compute_metrics(all_preds, all_targets)
-        msg = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}"
+        mse, mae, sign_acc, within_100, within_125 = self.compute_metrics(all_preds, all_targets)
+        msg = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
         self.logger.info(msg)
         print(msg)
         return mse

@@ -23,15 +23,15 @@ class DepthwiseCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            DWConvBlock(15, 16),
-            DWConvBlock(16, 24),
+            DWConvBlock(15, 24),
             DWConvBlock(24, 32),
             DWConvBlock(32, 48),
+            DWConvBlock(48, 64),
         )
         self.head = nn.Sequential(
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Flatten(),
-            nn.Linear(48, 32),
+            nn.Linear(64, 32),
             ClippedReLU(),
             nn.Linear(32, 1)
         )
