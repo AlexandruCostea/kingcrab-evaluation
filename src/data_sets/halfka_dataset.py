@@ -29,7 +29,7 @@ class HalfKADataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
         fen = self.data[idx]["fen"]
-        eval_cp = max(min(self.data[idx]["eval"], 1000), -1000) / 1000.0
+        eval_cp = self.data[idx]["eval"] / 600.0
 
         board = chess.Board(fen)
         own_color = board.turn

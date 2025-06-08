@@ -13,8 +13,8 @@ class CNNDataset(Dataset):
         for entry in data:
             if entry["eval"] > 600 or entry["eval"] < -600:
                 continue
+   
             self.data.append(entry)
-
 
 
     def __len__(self) -> int:
@@ -22,7 +22,7 @@ class CNNDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         fen = self.data[idx]["fen"]
-        eval_cp = max(min(self.data[idx]["eval"], 1000), -1000) / 1000.0
+        eval_cp = self.data[idx]["eval"] / 600.0
 
         board = chess.Board(fen)
         cnn_input = board_to_cnn_input(board)

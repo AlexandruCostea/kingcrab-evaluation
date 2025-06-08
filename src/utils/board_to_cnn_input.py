@@ -10,29 +10,27 @@ piece_channels = {
 }
 
 def board_to_cnn_input(board: chess.Board) -> torch.Tensor:
-    tensor = torch.zeros(15, 8, 8, dtype=torch.float32)
+    tensor = torch.zeros(14, 8, 8, dtype=torch.float32)
 
     for square, piece in board.piece_map().items():
         rank = chess.square_rank(square)
         file = chess.square_file(square)
         tensor[piece_channels[piece.symbol()], rank, file] = 1.0
 
-    if board.turn == chess.WHITE:
-        tensor[12, :, :] = 1.0
 
     if board.has_kingside_castling_rights(chess.WHITE):
-        tensor[13, 0, 0] = 1.0
+        tensor[12, 0, 0] = 1.0
     if board.has_queenside_castling_rights(chess.WHITE):
-        tensor[13, 0, 1] = 1.0
+        tensor[12, 0, 1] = 1.0
     if board.has_kingside_castling_rights(chess.BLACK):
-        tensor[13, 1, 0] = 1.0
+        tensor[12, 1, 0] = 1.0
     if board.has_queenside_castling_rights(chess.BLACK):
-        tensor[13, 1, 1] = 1.0
+        tensor[12, 1, 1] = 1.0
 
     if board.ep_square is not None:
         rank = chess.square_rank(board.ep_square)
         file = chess.square_file(board.ep_square)
-        tensor[14, rank, file] = 1.0
+        tensor[13, rank, file] = 1.0
 
     return tensor
 

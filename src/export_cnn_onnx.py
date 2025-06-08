@@ -10,7 +10,7 @@ def export_model(checkpoint_path: str, onnx_path: str):
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
-    dummy_input = torch.randn(1, 15, 8, 8)
+    dummy_input = torch.randn(1, 14, 8, 8)
 
     torch.onnx.export(
         model,
