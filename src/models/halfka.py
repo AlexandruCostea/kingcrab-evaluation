@@ -26,8 +26,8 @@ class HalfKAModel(nn.Module):
         super().__init__()
         self.device = device
 
-        self.embedding_own = nn.EmbeddingBag(45056, 520, mode='sum', sparse=True)
-        self.embedding_opp = nn.EmbeddingBag(45056, 520, mode='sum', sparse=True)
+        self.embedding_own = nn.EmbeddingBag(22528, 520, mode='sum', sparse=True)
+        self.embedding_opp = nn.EmbeddingBag(22528, 520, mode='sum', sparse=True)
 
         self.avg_linear = nn.Linear(8, 1)
         self.layer_stacks = nn.ModuleList([LayerStack() for _ in range(8)])

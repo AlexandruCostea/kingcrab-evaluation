@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("--count", type=int, default=100_000, help="Number of entries to extract, -1 for all")
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=256)
-    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--lr', type=float, default=1e-5)
     parser.add_argument('--experiment_name', type=str, default='evaluator network')
     parser.add_argument('--checkpoint', type=str, default=None)
     return parser.parse_args()
@@ -99,8 +99,7 @@ class Trainer:
                 targets = targets.to(self.device)
                 preds = self.model(cnn_input).squeeze(-1)
 
-                # loss = F.mse_loss(preds, targets)
-                loss = F.huber_loss(preds, targets)
+                loss = F.mse_loss(preds, targets)
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -143,8 +142,7 @@ class Trainer:
         message = f"Eval Epoch {epoch+1} - MSE: {mse:.4f}, MAE: {mae:.4f}, SignAcc: {sign_acc:.4f}, ±100cp: {within_100:.4f}, ±125cp: {within_125:.4f}"
         self.logger.info(message)
         print(message)
-        huber_loss = F.huber_loss(all_preds, all_targets)
-        return huber_loss
+        return mse
 
 
 

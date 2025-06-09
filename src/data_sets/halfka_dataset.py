@@ -3,7 +3,7 @@ import chess
 from torch.utils.data import Dataset
 from typing import List, Dict, Tuple
 
-from utils import compute_white_halfka_indices, compute_black_halfka_indices
+from utils import compute_halfka_indices
 
 
 def sparse_dual_collate_fn(batch):
@@ -35,14 +35,8 @@ class HalfKADataset(Dataset):
         own_color = board.turn
         opp_color = not own_color
 
-        own_indices = (
-            compute_white_halfka_indices(board) if own_color == chess.WHITE
-            else compute_black_halfka_indices(board)
-        )
-        opp_indices = (
-            compute_white_halfka_indices(board) if opp_color == chess.WHITE
-            else compute_black_halfka_indices(board)
-        )
+        own_indices = compute_halfka_indices(board, own_color)
+        opp_indices = compute_halfka_indices(board, opp_color)
 
         return (
             torch.tensor(own_indices, dtype=torch.long),

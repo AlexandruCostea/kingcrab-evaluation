@@ -23,7 +23,7 @@ class DepthwiseCNN(nn.Module):
     def __init__(self):
         super().__init__()
         self.net = nn.Sequential(
-            DWConvBlock(14, 24),
+            DWConvBlock(12, 24),
             DWConvBlock(24, 32),
             DWConvBlock(32, 48),
             DWConvBlock(48, 64),
