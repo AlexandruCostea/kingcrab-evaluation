@@ -6,6 +6,13 @@ import onnxruntime as ort
 import numpy as np
 
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--checkpoint", required=True, help="Path to model .pth checkpoint")
+    parser.add_argument("--output", required=True, help="Path to export .onnx file")
+    return parser.parse_args()
+
+
 def export_model(checkpoint_path: str, onnx_path: str):
     model = HalfKAModel(checkpoint_path=checkpoint_path)
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
@@ -111,9 +118,5 @@ def test_onnx_bucket(model, dummy_input, onnx_path):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", required=True, help="Path to model .pth checkpoint")
-    parser.add_argument("--output", required=True, help="Path to export .onnx file")
-    args = parser.parse_args()
-
+    args = parse_args()
     export_model(args.checkpoint, args.output)
