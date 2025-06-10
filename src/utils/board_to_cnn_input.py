@@ -17,20 +17,5 @@ def board_to_cnn_input(board: chess.Board) -> torch.Tensor:
         file = chess.square_file(square)
         tensor[piece_channels[piece.symbol()], rank, file] = 1.0
 
-
-    # if board.has_kingside_castling_rights(chess.WHITE):
-    #     tensor[12, 0, 0] = 1.0
-    # if board.has_queenside_castling_rights(chess.WHITE):
-    #     tensor[12, 0, 1] = 1.0
-    # if board.has_kingside_castling_rights(chess.BLACK):
-    #     tensor[12, 1, 0] = 1.0
-    # if board.has_queenside_castling_rights(chess.BLACK):
-    #     tensor[12, 1, 1] = 1.0
-
-    # if board.ep_square is not None:
-    #     rank = chess.square_rank(board.ep_square)
-    #     file = chess.square_file(board.ep_square)
-    #     tensor[13, rank, file] = 1.0
-
     return tensor
 
