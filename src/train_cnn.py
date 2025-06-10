@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument("--count", type=int, default=100_000, help="Number of entries to extract, -1 for all")
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=256)
-    parser.add_argument('--lr', type=float, default=1e-5)
+    parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--experiment_name', type=str, default='evaluator network')
     parser.add_argument('--checkpoint', type=str, default=None)
     return parser.parse_args()

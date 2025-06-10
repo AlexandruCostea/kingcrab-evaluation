@@ -11,7 +11,7 @@ from utils import board_to_cnn_input
 def parse_args():
     parser = argparse.ArgumentParser(description='Chess Evaluator Model Training')
     parser.add_argument("--checkpoint", type=str, required=True, help="Path to model checkpoint")
-    parser.add_argument("--inferences", type=int, default=10000, help="Number of inferences to run")
+    parser.add_argument("--inferences", type=int, default=100000, help="Number of inferences to run")
     return parser.parse_args()
 
 

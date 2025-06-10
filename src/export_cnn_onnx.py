@@ -1,6 +1,6 @@
 import torch
 import argparse
-from models import DepthwiseCNN
+from models import DepthwiseCNN, ChessResNetTeacher
 import onnxruntime as ort
 import numpy as np
 
@@ -10,7 +10,7 @@ def export_model(checkpoint_path: str, onnx_path: str):
     model.load_state_dict(torch.load(checkpoint_path, map_location="cpu"))
     model.eval()
 
-    dummy_input = torch.randn(1, 14, 8, 8)
+    dummy_input = torch.randn(1, 12, 8, 8)
 
     torch.onnx.export(
         model,

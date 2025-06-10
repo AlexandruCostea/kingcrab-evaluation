@@ -20,7 +20,7 @@ class ResBlock(nn.Module):
 
 
 class ChessResNetTeacher(nn.Module):
-    def __init__(self, in_channels: int = 14, channels: int = 96, num_blocks: int = 10, hidden_dim: int = 128):
+    def __init__(self, in_channels: int = 12, channels: int = 96, num_blocks: int = 10, hidden_dim: int = 128):
         super().__init__()
         self.stem = nn.Sequential(
             nn.Conv2d(in_channels, channels, kernel_size=3, padding=1),
