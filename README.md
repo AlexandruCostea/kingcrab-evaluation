@@ -39,7 +39,7 @@ cargo run --release <path_to_lichess_zst> <path_for_newly_processed_data>
 ### Create an environment
 
 ```bash
-conda new --name=<env_name> python=3.12
+conda create --name=<env_name> python=3.12
 conda activate <env_name>
 ```
 
