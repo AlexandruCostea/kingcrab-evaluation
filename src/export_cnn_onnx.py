@@ -57,5 +57,5 @@ def test_onnx_model(model, dummy_input, onnx_path):
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
+    args = parse_args()
     export_model(args.checkpoint, args.output)
